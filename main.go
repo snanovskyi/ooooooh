@@ -13,8 +13,6 @@ import (
 	"github.com/snanovskyi/ooooooh/websocket"
 )
 
-const tickRate = 20
-
 var addr = fmt.Sprintf(":3000")
 
 func main() {

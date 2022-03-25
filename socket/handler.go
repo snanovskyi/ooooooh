@@ -7,6 +7,6 @@ import (
 type Handler interface {
 	Open(ctx context.Context, socket Socket)
 	Message(ctx context.Context, socket Socket, bytes []byte)
-	Close(ctx context.Context, socket Socket)
+	Close(socket Socket)
 	Error(ctx context.Context, socket Socket, err error)
 }

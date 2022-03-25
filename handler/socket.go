@@ -40,8 +40,8 @@ func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 	s.registry.Add(newSession)
 	s.handler[newSession.Socket()] = NewClientHandler(s.ticker, newSession)
 	s.ticker.NextTick(func() {
-		newSession.Send(server.NewJoinGame(newSession.Player()))
 		s.world.Spawn(newSession.Player())
+		newSession.Send(server.NewJoinGame(newSession.Player()))
 	})
 }
 
@@ -57,7 +57,7 @@ func (s *socketHandler) Message(_ context.Context, sock socket.Socket, bytes []b
 	message.Handle(s.handler[sock])
 }
 
-func (s *socketHandler) Close(_ context.Context, sock socket.Socket) {
+func (s *socketHandler) Close(sock socket.Socket) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	getSession := s.registry.Get(sock)
@@ -68,7 +68,9 @@ func (s *socketHandler) Close(_ context.Context, sock socket.Socket) {
 	})
 }
 
-func (s *socketHandler) Error(_ context.Context, _ socket.Socket, err error) {
+func (s *socketHandler) Error(_ context.Context, sock socket.Socket, err error) {
 	// TODO: error handling
 	log.Println(err)
+	getSession := s.registry.Get(sock)
+	getSession.Close()
 }

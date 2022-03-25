@@ -1,7 +1,7 @@
 package protobuf
 
 import (
-	"github.com/snanovskyi/ooooooh/math"
+	"github.com/snanovskyi/ooooooh/game"
 	"github.com/snanovskyi/ooooooh/protocol/server"
 	"google.golang.org/protobuf/proto"
 )
@@ -26,11 +26,13 @@ func (e *encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 	entities := joinGame.Player().World().Entities()
 	players := make([]*JoinGame_Player, len(entities))
 	for i, entity := range entities {
+		// TODO: fix this later
+		p := entity.(*game.Player)
 		players[i] = &JoinGame_Player{
-			Id:        entity.ID(),
-			Position:  EncodeVector(entity.Position()),
-			Direction: EncodeVector(&math.Vector{}),
-			Velocity:  0,
+			Id:        p.ID(),
+			Position:  EncodeVector(p.Position()),
+			Direction: EncodeVector(p.Direction()),
+			Velocity:  p.Velocity(),
 		}
 	}
 	return proto.Marshal(&Message{

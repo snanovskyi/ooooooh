@@ -57,6 +57,7 @@ message DestroyEntity {
 message SpawnPlayer {
   uint32 id = 1;
   Vector position = 2;
+  float velocity = 3;
 }
 
 message UpdatePlayer {

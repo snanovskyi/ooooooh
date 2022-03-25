@@ -10,12 +10,21 @@ import (
 )
 
 type socket struct {
-	conn *websocket.Conn
-	mu   sync.Mutex
+	conn   *websocket.Conn
+	mu     sync.Mutex
+	closed bool
 }
 
 func newSocket(c *websocket.Conn) *socket {
 	return &socket{conn: c}
+}
+
+func (s *socket) Connected() bool {
+	return !s.closed
+}
+
+func (s *socket) Closed() bool {
+	return s.closed
 }
 
 func (s *socket) Read(ctx context.Context) ([]byte, error) {
@@ -47,5 +56,6 @@ func (s *socket) Write(ctx context.Context, bytes []byte) error {
 }
 
 func (s *socket) Close() error {
+	s.closed = true
 	return s.conn.Close(websocket.StatusNormalClosure, "close")
 }

@@ -19,6 +19,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+		// TODO: fix this later
 		InsecureSkipVerify: true,
 	})
 	if err != nil {
@@ -28,13 +29,13 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	s := newSocket(conn)
 	h.handler.Open(ctx, s)
-	defer h.handler.Close(ctx, s)
+	defer h.handler.Close(s)
 
-	for {
+	for !s.Closed() {
 		select {
 		case <-ctx.Done():
 			h.handler.Error(ctx, s, ctx.Err())
-			return
+			break
 		default:
 			bytes, rErr := s.Read(ctx)
 			if rErr != nil {
