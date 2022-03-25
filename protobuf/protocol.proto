@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package protobuf;
+
+option go_package = "github.com/snanovskyi/ooooooh/protobuf";
+
+message Vector {
+  float x = 1;
+  float y = 2;
+}
+
+message Message {
+  enum Opcode {
+    CLIENT_PING = 0;
+    SERVER_PONG = 1;
+    SERVER_JOIN_GAME = 2;
+    SERVER_DESTROY_ENTITY = 3;
+    SERVER_SPAWN_PLAYER = 4;
+    SERVER_UPDATE_PLAYER = 5;
+    CLIENT_MOVE_PLAYER = 6;
+  }
+
+  Opcode opcode = 1;
+  optional Ping ping = 2;
+  optional Pong pong = 3;
+  optional JoinGame join_game = 4;
+  optional DestroyEntity destroy_entity = 5;
+  optional SpawnPlayer spawn_player = 6;
+  optional UpdatePlayer update_player = 7;
+  optional MovePlayer move_player = 8;
+}
+
+message Ping {
+  uint32 id = 1;
+}
+
+message Pong {
+  uint32 id = 1;
+}
+
+message JoinGame {
+  uint32 player_id = 1;
+  repeated Player players = 2;
+
+  message Player {
+    uint32 id = 1;
+    Vector position = 2;
+    Vector direction = 3;
+    float velocity = 4;
+  }
+}
+
+message DestroyEntity {
+  uint32 id = 1;
+}
+
+message SpawnPlayer {
+  uint32 id = 1;
+  Vector position = 2;
+}
+
+message UpdatePlayer {
+  uint32 id = 1;
+  Vector position = 2;
+  Vector direction = 3;
+  float velocity = 4;
+}
+
+message MovePlayer {
+  Vector direction = 1;
+}
