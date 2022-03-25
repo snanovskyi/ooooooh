@@ -3,13 +3,13 @@ package game
 type World struct {
 	handler  Handler
 	nextID   uint32
-	entities map[Entity]Entity
+	entities map[uint32]Entity
 }
 
 func NewWorld(h Handler) *World {
 	return &World{
 		handler:  h,
-		entities: make(map[Entity]Entity),
+		entities: make(map[uint32]Entity),
 	}
 }
 
@@ -20,7 +20,7 @@ func (w *World) Handler() Handler {
 func (w *World) Entities() []Entity {
 	entities := make([]Entity, len(w.entities))
 	i := 0
-	for e := range w.entities {
+	for _, e := range w.entities {
 		entities[i] = e
 		i++
 	}
@@ -34,18 +34,18 @@ func (w *World) NewID() uint32 {
 }
 
 func (w *World) Spawn(entity Entity) {
-	w.entities[entity] = entity
+	w.entities[entity.ID()] = entity
 	entity.Spawn()
 }
 
 func (w *World) Destroy(entity Entity) {
 	entity.Destroy()
-	delete(w.entities, entity)
+	delete(w.entities, entity.ID())
 	w.handler.DestroyEntity(entity)
 }
 
 func (w *World) Update() {
-	for e := range w.entities {
+	for _, e := range w.entities {
 		e.Update()
 	}
 }

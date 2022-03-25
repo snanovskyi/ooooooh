@@ -28,8 +28,8 @@ func (t *Ticker) EveryTick(fn func()) {
 	t.everyTick = append(t.everyTick, fn)
 }
 
-func (t *Ticker) Run() {
-	for range time.Tick(1000 / 20 * time.Millisecond) {
+func (t *Ticker) Run(tickRate uint32) {
+	for range time.Tick(time.Duration(1000/tickRate) * time.Millisecond) {
 		t.tick()
 	}
 }

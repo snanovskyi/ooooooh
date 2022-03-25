@@ -13,17 +13,19 @@ import (
 	"github.com/snanovskyi/ooooooh/websocket"
 )
 
+const tickRate = 20
+
 var addr = fmt.Sprintf(":3000")
 
 func main() {
 	t := &ticker.Ticker{}
 	r := session.NewRegistry()
 	w := game.NewWorld(handler.NewGameHandler(r))
-	c := protocol.NewCodec(protobuf.NewDecoder(), protobuf.NewEncoder())
+	c := protocol.NewCodec(&protobuf.Decoder{}, &protobuf.Encoder{})
 	s := handler.NewSocketHandler(r, t, w, c)
 	h := websocket.NewHandler(s)
 	t.EveryTick(w.Update)
-	go t.Run()
+	go t.Run(tickRate)
 	if err := http.ListenAndServe(addr, h); err != nil {
 		return
 	}

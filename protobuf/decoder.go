@@ -7,14 +7,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type decoder struct {
+type Decoder struct {
 }
 
-func NewDecoder() *decoder {
-	return &decoder{}
-}
-
-func (d *decoder) Decode(bytes []byte) (client.Message, error) {
+func (d *Decoder) Decode(bytes []byte) (client.Message, error) {
 	message := &Message{}
 	if err := proto.Unmarshal(bytes, message); err != nil {
 		return nil, err
@@ -29,10 +25,10 @@ func (d *decoder) Decode(bytes []byte) (client.Message, error) {
 	}
 }
 
-func (d *decoder) ping(message *Message) (client.Message, error) {
+func (d *Decoder) ping(message *Message) (client.Message, error) {
 	return client.NewPing(message.Ping.Id), nil
 }
 
-func (d *decoder) movePlayer(message *Message) (client.Message, error) {
+func (d *Decoder) movePlayer(message *Message) (client.Message, error) {
 	return client.NewMovePlayer(DecodeVector(message.MovePlayer.Direction)), nil
 }

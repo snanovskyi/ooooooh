@@ -6,14 +6,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type encoder struct {
+type Encoder struct {
 }
 
-func NewEncoder() *encoder {
-	return &encoder{}
-}
-
-func (e *encoder) Pong(pong *server.Pong) ([]byte, error) {
+func (e *Encoder) Pong(pong *server.Pong) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_PONG,
 		Pong: &Pong{
@@ -22,7 +18,7 @@ func (e *encoder) Pong(pong *server.Pong) ([]byte, error) {
 	})
 }
 
-func (e *encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
+func (e *Encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 	entities := joinGame.Player().World().Entities()
 	players := make([]*JoinGame_Player, len(entities))
 	for i, entity := range entities {
@@ -44,7 +40,7 @@ func (e *encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 	})
 }
 
-func (e *encoder) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, error) {
+func (e *Encoder) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_DESTROY_ENTITY,
 		DestroyEntity: &DestroyEntity{
@@ -53,7 +49,7 @@ func (e *encoder) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, er
 	})
 }
 
-func (e *encoder) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
+func (e *Encoder) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_SPAWN_PLAYER,
 		SpawnPlayer: &SpawnPlayer{
@@ -63,7 +59,7 @@ func (e *encoder) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
 	})
 }
 
-func (e *encoder) UpdatePlayer(updatePlayer *server.UpdatePlayer) ([]byte, error) {
+func (e *Encoder) UpdatePlayer(updatePlayer *server.UpdatePlayer) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_UPDATE_PLAYER,
 		UpdatePlayer: &UpdatePlayer{
