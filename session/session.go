@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/snanovskyi/ooooooh/game"
-	"github.com/snanovskyi/ooooooh/protocol"
 	"github.com/snanovskyi/ooooooh/protocol/server"
 	"github.com/snanovskyi/ooooooh/socket"
 )
@@ -13,21 +12,17 @@ import (
 type Session struct {
 	context context.Context
 	socket  socket.Socket
-	codec   *protocol.Codec
+	encoder server.Encoder
 	player  *game.Player
 }
 
-func NewSession(ctx context.Context, s socket.Socket, c *protocol.Codec, p *game.Player) *Session {
+func NewSession(ctx context.Context, s socket.Socket, e server.Encoder, p *game.Player) *Session {
 	return &Session{
 		context: ctx,
 		socket:  s,
-		codec:   c,
+		encoder: e,
 		player:  p,
 	}
-}
-
-func (s *Session) Context() context.Context {
-	return s.context
 }
 
 func (s *Session) Socket() socket.Socket {
@@ -41,7 +36,7 @@ func (s *Session) Player() *game.Player {
 func (s *Session) Send(m server.Message) {
 	// TODO: error handling
 
-	bytes, err := s.codec.Encode(m)
+	bytes, err := m.Encode(s.encoder)
 	if err != nil {
 		log.Println(err)
 		return
@@ -53,6 +48,6 @@ func (s *Session) Send(m server.Message) {
 	}
 }
 
-func (s *Session) Close() error {
-	return s.socket.Close()
+func (s *Session) Close(status socket.CloseStatus) error {
+	return s.socket.Close(status)
 }

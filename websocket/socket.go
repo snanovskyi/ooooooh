@@ -6,8 +6,15 @@ import (
 	"fmt"
 	"sync"
 
+	sock "github.com/snanovskyi/ooooooh/socket"
 	"nhooyr.io/websocket"
 )
+
+var closeStatusToStatusCode = map[sock.CloseStatus]websocket.StatusCode{
+	sock.StatusOk:            websocket.StatusNormalClosure,
+	sock.StatusProtocolError: websocket.StatusUnsupportedData,
+	sock.StatusInternalError: websocket.StatusInternalError,
+}
 
 type socket struct {
 	conn   *websocket.Conn
@@ -55,7 +62,7 @@ func (s *socket) Write(ctx context.Context, bytes []byte) error {
 	return s.conn.Write(ctx, websocket.MessageBinary, bytes)
 }
 
-func (s *socket) Close() error {
+func (s *socket) Close(status sock.CloseStatus) error {
 	s.closed = true
-	return s.conn.Close(websocket.StatusNormalClosure, "close")
+	return s.conn.Close(closeStatusToStatusCode[status], fmt.Sprintf("close status '%d'", status))
 }

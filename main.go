@@ -7,7 +7,6 @@ import (
 	"github.com/snanovskyi/ooooooh/game"
 	"github.com/snanovskyi/ooooooh/handler"
 	"github.com/snanovskyi/ooooooh/protobuf"
-	"github.com/snanovskyi/ooooooh/protocol"
 	"github.com/snanovskyi/ooooooh/session"
 	"github.com/snanovskyi/ooooooh/ticker"
 	"github.com/snanovskyi/ooooooh/websocket"
@@ -21,8 +20,7 @@ func main() {
 	t := &ticker.Ticker{}
 	r := session.NewRegistry()
 	w := game.NewWorld(handler.NewGameHandler(r))
-	c := protocol.NewCodec(&protobuf.Decoder{}, &protobuf.Encoder{})
-	s := handler.NewSocketHandler(r, t, w, c)
+	s := handler.NewSocketHandler(r, t, w, &protobuf.Decoder{}, &protobuf.Encoder{})
 	h := websocket.NewHandler(s)
 	t.EveryTick(w.Update)
 	go t.Run(tickRate)

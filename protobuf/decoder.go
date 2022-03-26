@@ -3,12 +3,12 @@ package protobuf
 import (
 	"fmt"
 
+	"github.com/snanovskyi/ooooooh/math"
 	"github.com/snanovskyi/ooooooh/protocol/client"
 	"google.golang.org/protobuf/proto"
 )
 
-type Decoder struct {
-}
+type Decoder struct{}
 
 func (d *Decoder) Decode(bytes []byte) (client.Message, error) {
 	message := &Message{}
@@ -30,5 +30,12 @@ func (d *Decoder) ping(message *Message) (client.Message, error) {
 }
 
 func (d *Decoder) movePlayer(message *Message) (client.Message, error) {
-	return client.NewMovePlayer(DecodeVector(message.MovePlayer.Direction)), nil
+	return client.NewMovePlayer(d.decodeVector(message.MovePlayer.Direction)), nil
+}
+
+func (d *Decoder) decodeVector(vector *Vector) *math.Vector {
+	return &math.Vector{
+		X: vector.X,
+		Y: vector.Y,
+	}
 }

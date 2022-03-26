@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/snanovskyi/ooooooh/game"
-	"github.com/snanovskyi/ooooooh/protocol"
 	"github.com/snanovskyi/ooooooh/protocol/client"
 	"github.com/snanovskyi/ooooooh/protocol/server"
 	"github.com/snanovskyi/ooooooh/session"
@@ -18,17 +17,19 @@ type socketHandler struct {
 	registry *session.Registry
 	ticker   *ticker.Ticker
 	world    *game.World
-	codec    *protocol.Codec
+	decoder  client.Decoder
+	encoder  server.Encoder
 	mu       sync.RWMutex
 	handler  map[socket.Socket]client.Handler
 }
 
-func NewSocketHandler(r *session.Registry, t *ticker.Ticker, w *game.World, c *protocol.Codec) *socketHandler {
+func NewSocketHandler(r *session.Registry, t *ticker.Ticker, w *game.World, d client.Decoder, e server.Encoder) *socketHandler {
 	return &socketHandler{
 		registry: r,
 		ticker:   t,
 		world:    w,
-		codec:    c,
+		decoder:  d,
+		encoder:  e,
 		handler:  make(map[socket.Socket]client.Handler),
 	}
 }
@@ -36,7 +37,7 @@ func NewSocketHandler(r *session.Registry, t *ticker.Ticker, w *game.World, c *p
 func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	newSession := session.NewSession(ctx, sock, s.codec, game.NewPlayer(s.world))
+	newSession := session.NewSession(ctx, sock, s.encoder, game.NewPlayer(s.world))
 	s.registry.Add(newSession)
 	s.handler[newSession.Socket()] = NewClientHandler(s.ticker, newSession)
 	s.ticker.NextTick(func() {
@@ -46,10 +47,9 @@ func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 }
 
 func (s *socketHandler) Message(_ context.Context, sock socket.Socket, bytes []byte) {
-	message, err := s.codec.Decode(bytes)
+	message, err := s.decoder.Decode(bytes)
 	if err != nil {
-		// TODO: error handling
-		log.Println(err)
+		s.registry.Get(sock).Close(socket.StatusProtocolError)
 		return
 	}
 	s.mu.RLock()
@@ -72,5 +72,5 @@ func (s *socketHandler) Error(_ context.Context, sock socket.Socket, err error) 
 	// TODO: error handling
 	log.Println(err)
 	getSession := s.registry.Get(sock)
-	getSession.Close()
+	getSession.Close(socket.StatusInternalError)
 }

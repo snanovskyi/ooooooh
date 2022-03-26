@@ -2,12 +2,12 @@ package protobuf
 
 import (
 	"github.com/snanovskyi/ooooooh/game"
+	"github.com/snanovskyi/ooooooh/math"
 	"github.com/snanovskyi/ooooooh/protocol/server"
 	"google.golang.org/protobuf/proto"
 )
 
-type Encoder struct {
-}
+type Encoder struct{}
 
 func (e *Encoder) Pong(pong *server.Pong) ([]byte, error) {
 	return proto.Marshal(&Message{
@@ -26,8 +26,8 @@ func (e *Encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 		p := entity.(*game.Player)
 		players[i] = &JoinGame_Player{
 			Id:        p.ID(),
-			Position:  EncodeVector(p.Position()),
-			Direction: EncodeVector(p.Direction()),
+			Position:  e.encodeVector(p.Position()),
+			Direction: e.encodeVector(p.Direction()),
 			Velocity:  p.Velocity(),
 		}
 	}
@@ -54,7 +54,7 @@ func (e *Encoder) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
 		Opcode: Message_SERVER_SPAWN_PLAYER,
 		SpawnPlayer: &SpawnPlayer{
 			Id:       spawnPlayer.Player().ID(),
-			Position: EncodeVector(spawnPlayer.Player().Position()),
+			Position: e.encodeVector(spawnPlayer.Player().Position()),
 		},
 	})
 }
@@ -64,9 +64,16 @@ func (e *Encoder) UpdatePlayer(updatePlayer *server.UpdatePlayer) ([]byte, error
 		Opcode: Message_SERVER_UPDATE_PLAYER,
 		UpdatePlayer: &UpdatePlayer{
 			Id:        updatePlayer.Player().ID(),
-			Position:  EncodeVector(updatePlayer.Player().Position()),
-			Direction: EncodeVector(updatePlayer.Player().Direction()),
+			Position:  e.encodeVector(updatePlayer.Player().Position()),
+			Direction: e.encodeVector(updatePlayer.Player().Direction()),
 			Velocity:  updatePlayer.Player().Velocity(),
 		},
 	})
+}
+
+func (e *Encoder) encodeVector(vector *math.Vector) *Vector {
+	return &Vector{
+		X: vector.X,
+		Y: vector.Y,
+	}
 }

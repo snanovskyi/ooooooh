@@ -39,7 +39,14 @@ func (r *Registry) Delete(s socket.Socket) {
 func (r *Registry) Broadcast(m server.Message) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	for _, s := range r.sessions {
-		s.Send(m)
+	var wg sync.WaitGroup
+	for _, session := range r.sessions {
+		s := session
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			s.Send(m)
+		}()
 	}
+	wg.Wait()
 }
