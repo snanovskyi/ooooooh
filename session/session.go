@@ -34,16 +34,16 @@ func (s *Session) Player() *game.Player {
 }
 
 func (s *Session) Send(m server.Message) {
-	// TODO: error handling
-
 	bytes, err := m.Encode(s.encoder)
 	if err != nil {
 		log.Println(err)
+		s.Close(socket.StatusProtocolError)
 		return
 	}
 	err = s.socket.Write(s.context, bytes)
 	if err != nil {
 		log.Println(err)
+		s.Close(socket.StatusInternalError)
 		return
 	}
 }

@@ -49,6 +49,7 @@ func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 func (s *socketHandler) Message(_ context.Context, sock socket.Socket, bytes []byte) {
 	message, err := s.decoder.Decode(bytes)
 	if err != nil {
+		log.Println(err)
 		s.registry.Get(sock).Close(socket.StatusProtocolError)
 		return
 	}
@@ -69,6 +70,12 @@ func (s *socketHandler) Close(sock socket.Socket) {
 }
 
 func (s *socketHandler) Error(_ context.Context, sock socket.Socket, err error) {
+	// Connection error
+	if sock == nil {
+		log.Println(err)
+		return
+	}
+
 	// TODO: error handling
 	log.Println(err)
 	getSession := s.registry.Get(sock)

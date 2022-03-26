@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/snanovskyi/ooooooh/game"
@@ -25,6 +26,6 @@ func main() {
 	t.EveryTick(w.Update)
 	go t.Run(tickRate)
 	if err := http.ListenAndServe(addr, h); err != nil {
-		return
+		log.Fatalln(err)
 	}
 }
