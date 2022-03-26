@@ -14,30 +14,30 @@ import (
 )
 
 type socketHandler struct {
-	registry *session.Registry
-	ticker   *ticker.Ticker
-	world    *game.World
-	decoder  client.Decoder
-	encoder  server.Encoder
-	mu       sync.RWMutex
-	handler  map[socket.Socket]client.Handler
+	registry    *session.Registry
+	ticker      *ticker.Ticker
+	world       *game.World
+	unmarshaler client.Unmarshaler
+	marshaler   server.Marshaler
+	mu          sync.RWMutex
+	handler     map[socket.Socket]client.Handler
 }
 
-func NewSocketHandler(r *session.Registry, t *ticker.Ticker, w *game.World, d client.Decoder, e server.Encoder) *socketHandler {
+func NewSocketHandler(r *session.Registry, t *ticker.Ticker, w *game.World, u client.Unmarshaler, m server.Marshaler) *socketHandler {
 	return &socketHandler{
-		registry: r,
-		ticker:   t,
-		world:    w,
-		decoder:  d,
-		encoder:  e,
-		handler:  make(map[socket.Socket]client.Handler),
+		registry:    r,
+		ticker:      t,
+		world:       w,
+		unmarshaler: u,
+		marshaler:   m,
+		handler:     make(map[socket.Socket]client.Handler),
 	}
 }
 
 func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	newSession := session.NewSession(ctx, sock, s.encoder, game.NewPlayer(s.world))
+	newSession := session.NewSession(ctx, sock, s.marshaler, game.NewPlayer(s.world))
 	s.registry.Add(newSession)
 	s.handler[newSession.Socket()] = NewClientHandler(s.ticker, newSession)
 	s.ticker.NextTick(func() {
@@ -47,7 +47,7 @@ func (s *socketHandler) Open(ctx context.Context, sock socket.Socket) {
 }
 
 func (s *socketHandler) Message(_ context.Context, sock socket.Socket, bytes []byte) {
-	message, err := s.decoder.Decode(bytes)
+	message, err := s.unmarshaler.Unmarshal(bytes)
 	if err != nil {
 		log.Println(err)
 		s.registry.Get(sock).Close(socket.StatusProtocolError)

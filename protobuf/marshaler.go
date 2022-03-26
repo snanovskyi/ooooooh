@@ -7,9 +7,9 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type Encoder struct{}
+type Marshaler struct{}
 
-func (e *Encoder) Pong(pong *server.Pong) ([]byte, error) {
+func (m *Marshaler) Pong(pong *server.Pong) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_PONG,
 		Pong: &Pong{
@@ -18,7 +18,7 @@ func (e *Encoder) Pong(pong *server.Pong) ([]byte, error) {
 	})
 }
 
-func (e *Encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
+func (m *Marshaler) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 	entities := joinGame.Player().World().Entities()
 	players := make([]*JoinGame_Player, len(entities))
 	for i, entity := range entities {
@@ -26,8 +26,8 @@ func (e *Encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 		p := entity.(*game.Player)
 		players[i] = &JoinGame_Player{
 			Id:        p.ID(),
-			Position:  e.encodeVector(p.Position()),
-			Direction: e.encodeVector(p.Direction()),
+			Position:  m.encodeVector(p.Position()),
+			Direction: m.encodeVector(p.Direction()),
 			Velocity:  p.Velocity(),
 		}
 	}
@@ -40,7 +40,7 @@ func (e *Encoder) JoinGame(joinGame *server.JoinGame) ([]byte, error) {
 	})
 }
 
-func (e *Encoder) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, error) {
+func (m *Marshaler) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_DESTROY_ENTITY,
 		DestroyEntity: &DestroyEntity{
@@ -49,29 +49,29 @@ func (e *Encoder) DestroyEntity(destroyEntity *server.DestroyEntity) ([]byte, er
 	})
 }
 
-func (e *Encoder) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
+func (m *Marshaler) SpawnPlayer(spawnPlayer *server.SpawnPlayer) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_SPAWN_PLAYER,
 		SpawnPlayer: &SpawnPlayer{
 			Id:       spawnPlayer.Player().ID(),
-			Position: e.encodeVector(spawnPlayer.Player().Position()),
+			Position: m.encodeVector(spawnPlayer.Player().Position()),
 		},
 	})
 }
 
-func (e *Encoder) UpdatePlayer(updatePlayer *server.UpdatePlayer) ([]byte, error) {
+func (m *Marshaler) UpdatePlayer(updatePlayer *server.UpdatePlayer) ([]byte, error) {
 	return proto.Marshal(&Message{
 		Opcode: Message_SERVER_UPDATE_PLAYER,
 		UpdatePlayer: &UpdatePlayer{
 			Id:        updatePlayer.Player().ID(),
-			Position:  e.encodeVector(updatePlayer.Player().Position()),
-			Direction: e.encodeVector(updatePlayer.Player().Direction()),
+			Position:  m.encodeVector(updatePlayer.Player().Position()),
+			Direction: m.encodeVector(updatePlayer.Player().Direction()),
 			Velocity:  updatePlayer.Player().Velocity(),
 		},
 	})
 }
 
-func (e *Encoder) encodeVector(vector *math.Vector) *Vector {
+func (m *Marshaler) encodeVector(vector *math.Vector) *Vector {
 	return &Vector{
 		X: vector.X,
 		Y: vector.Y,

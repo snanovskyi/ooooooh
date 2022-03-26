@@ -1,5 +1,5 @@
 package server
 
 type Message interface {
-	Encode(encoder Encoder) ([]byte, error)
+	Marshal(marshaler Marshaler) ([]byte, error)
 }

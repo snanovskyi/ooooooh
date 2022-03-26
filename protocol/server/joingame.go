@@ -16,6 +16,6 @@ func (j *JoinGame) Player() *game.Player {
 	return j.player
 }
 
-func (j *JoinGame) Encode(encoder Encoder) ([]byte, error) {
-	return encoder.JoinGame(j)
+func (j *JoinGame) Marshal(marshaler Marshaler) ([]byte, error) {
+	return marshaler.JoinGame(j)
 }

@@ -16,6 +16,6 @@ func (u *UpdatePlayer) Player() *game.Player {
 	return u.player
 }
 
-func (u *UpdatePlayer) Encode(encoder Encoder) ([]byte, error) {
-	return encoder.UpdatePlayer(u)
+func (u *UpdatePlayer) Marshal(marshaler Marshaler) ([]byte, error) {
+	return marshaler.UpdatePlayer(u)
 }

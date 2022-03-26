@@ -10,18 +10,18 @@ import (
 )
 
 type Session struct {
-	context context.Context
-	socket  socket.Socket
-	encoder server.Encoder
-	player  *game.Player
+	context   context.Context
+	socket    socket.Socket
+	marshaler server.Marshaler
+	player    *game.Player
 }
 
-func NewSession(ctx context.Context, s socket.Socket, e server.Encoder, p *game.Player) *Session {
+func NewSession(ctx context.Context, s socket.Socket, m server.Marshaler, p *game.Player) *Session {
 	return &Session{
-		context: ctx,
-		socket:  s,
-		encoder: e,
-		player:  p,
+		context:   ctx,
+		socket:    s,
+		marshaler: m,
+		player:    p,
 	}
 }
 
@@ -33,8 +33,8 @@ func (s *Session) Player() *game.Player {
 	return s.player
 }
 
-func (s *Session) Send(m server.Message) {
-	bytes, err := m.Encode(s.encoder)
+func (s *Session) Send(message server.Message) {
+	bytes, err := message.Marshal(s.marshaler)
 	if err != nil {
 		log.Println(err)
 		s.Close(socket.StatusProtocolError)

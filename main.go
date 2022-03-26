@@ -21,7 +21,7 @@ func main() {
 	t := &ticker.Ticker{}
 	r := session.NewRegistry()
 	w := game.NewWorld(handler.NewGameHandler(r))
-	s := handler.NewSocketHandler(r, t, w, &protobuf.Decoder{}, &protobuf.Encoder{})
+	s := handler.NewSocketHandler(r, t, w, &protobuf.Unmarshaler{}, &protobuf.Marshaler{})
 	h := websocket.NewHandler(s)
 	t.EveryTick(w.Update)
 	go t.Run(tickRate)

@@ -16,6 +16,6 @@ func (s *SpawnPlayer) Player() *game.Player {
 	return s.player
 }
 
-func (s *SpawnPlayer) Encode(encoder Encoder) ([]byte, error) {
-	return encoder.SpawnPlayer(s)
+func (s *SpawnPlayer) Marshal(marshaler Marshaler) ([]byte, error) {
+	return marshaler.SpawnPlayer(s)
 }

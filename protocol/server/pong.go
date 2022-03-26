@@ -12,6 +12,6 @@ func (p *Pong) ID() uint32 {
 	return p.id
 }
 
-func (p *Pong) Encode(encoder Encoder) ([]byte, error) {
-	return encoder.Pong(p)
+func (p *Pong) Marshal(marshaler Marshaler) ([]byte, error) {
+	return marshaler.Pong(p)
 }

@@ -1,6 +1,6 @@
 package server
 
-type Encoder interface {
+type Marshaler interface {
 	Pong(pong *Pong) ([]byte, error)
 	JoinGame(joinGame *JoinGame) ([]byte, error)
 	DestroyEntity(destroyEntity *DestroyEntity) ([]byte, error)

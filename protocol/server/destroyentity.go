@@ -16,6 +16,6 @@ func (d *DestroyEntity) Entity() game.Entity {
 	return d.entity
 }
 
-func (d *DestroyEntity) Encode(encoder Encoder) ([]byte, error) {
-	return encoder.DestroyEntity(d)
+func (d *DestroyEntity) Marshal(marshaler Marshaler) ([]byte, error) {
+	return marshaler.DestroyEntity(d)
 }
